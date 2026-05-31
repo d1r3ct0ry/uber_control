@@ -1,923 +1,100 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Uber Financeiro — Painel do Motorista</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<title>Resumo Diário Uber/99</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg: #f5f4f0;
-    --surface: #ffffff;
-    --surface2: #f0efe9;
-    --border: rgba(0,0,0,0.08);
-    --border2: rgba(0,0,0,0.14);
-    --text: #1a1a17;
-    --text2: #6b6b63;
-    --text3: #9b9b90;
-    --green: #2d7a47;
-    --green-bg: #e8f5ed;
-    --red: #b83232;
-    --red-bg: #fbeaea;
-    --blue: #1a5fa8;
-    --blue-bg: #e6eef8;
-    --amber: #8a5c0a;
-    --amber-bg: #fdf3e0;
-    --accent: #1a1a17;
-    --radius: 10px;
-    --radius-lg: 14px;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #141412;
-      --surface: #1e1e1b;
-      --surface2: #272723;
-      --border: rgba(255,255,255,0.08);
-      --border2: rgba(255,255,255,0.14);
-      --text: #f0efe9;
-      --text2: #9b9b90;
-      --text3: #6b6b63;
-      --green: #5bc47a;
-      --green-bg: #0d2b18;
-      --red: #e87070;
-      --red-bg: #2b0d0d;
-      --blue: #6aaae8;
-      --blue-bg: #0d1e2e;
-      --amber: #e8b85a;
-      --amber-bg: #2b1e08;
-    }
-  }
-
-  html, body { height: 100%; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    font-size: 15px;
-    line-height: 1.5;
-  }
-
-  /* Layout */
-  .app-shell { display: flex; height: 100vh; overflow: hidden; }
-
-  /* Sidebar */
-  .sidebar {
-    width: 220px; flex-shrink: 0;
-    background: var(--surface);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    padding: 0;
-    overflow-y: auto;
-  }
-
-  .sidebar-header {
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid var(--border);
-  }
-  .sidebar-logo {
-    display: flex; align-items: center; gap: 10px;
-  }
-  .logo-icon {
-    width: 36px; height: 36px; border-radius: 9px;
-    background: var(--text); color: var(--surface);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px;
-  }
-  .logo-text { font-size: 15px; font-weight: 600; line-height: 1.2; }
-  .logo-sub { font-size: 11px; color: var(--text2); }
-
-  .nav-section { padding: 16px 12px 0; }
-  .nav-label { font-size: 10px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); padding: 0 8px; margin-bottom: 6px; }
-
-  .nav-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 9px 10px; border-radius: var(--radius);
-    font-size: 14px; font-weight: 400; color: var(--text2);
-    cursor: pointer; transition: all .12s;
-    margin-bottom: 2px; border: none; background: none; width: 100%; text-align: left;
-  }
-  .nav-item:hover { background: var(--surface2); color: var(--text); }
-  .nav-item.active { background: var(--text); color: var(--bg); font-weight: 500; }
-  .nav-item i { font-size: 17px; }
-
-  .sidebar-footer {
-    margin-top: auto; padding: 16px 12px;
-    border-top: 1px solid var(--border);
-    font-size: 12px; color: var(--text3); text-align: center;
-  }
-
-  /* Main content */
-  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
-
-  .topbar {
-    background: var(--surface); border-bottom: 1px solid var(--border);
-    padding: 16px 28px; display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 10;
-  }
-  .topbar-title { font-size: 17px; font-weight: 600; }
-  .topbar-sub { font-size: 13px; color: var(--text2); }
-
-  .content { padding: 28px; flex: 1; }
-
-  /* Sections */
-  .section { display: none; }
-  .section.active { display: block; }
-
-  /* Cards */
-  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
-  .card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 16px 18px;
-  }
-  .card-label { font-size: 12px; color: var(--text2); margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
-  .card-value { font-size: 22px; font-weight: 600; color: var(--text); font-family: 'DM Mono', monospace; }
-  .card-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
-  .card.is-green .card-value { color: var(--green); }
-  .card.is-red .card-value { color: var(--red); }
-  .card.is-blue .card-value { color: var(--blue); }
-
-  /* Forms */
-  .form-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 24px;
-  }
-  .form-title { font-size: 14px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .form-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
-  .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 130px; }
-  .field label { font-size: 12px; font-weight: 500; color: var(--text2); }
-  .field input, .field select {
-    padding: 9px 12px; border: 1px solid var(--border2);
-    border-radius: var(--radius); font-size: 14px; font-family: 'DM Sans', sans-serif;
-    background: var(--bg); color: var(--text); outline: none; transition: border .12s;
-  }
-  .field input:focus, .field select:focus { border-color: var(--text); }
-
-  .btn {
-    padding: 9px 20px; border-radius: var(--radius); font-size: 14px; font-weight: 500;
-    cursor: pointer; border: none; transition: all .12s; display: inline-flex; align-items: center; gap: 6px;
-    font-family: 'DM Sans', sans-serif;
-  }
-  .btn-primary { background: var(--text); color: var(--bg); }
-  .btn-primary:hover { opacity: .85; }
-  .btn-ghost {
-    background: none; border: 1px solid var(--border2); color: var(--text2);
-  }
-  .btn-ghost:hover { background: var(--surface2); color: var(--text); }
-
-  /* Table */
-  .table-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); overflow: hidden;
-  }
-  table { width: 100%; border-collapse: collapse; }
-  th {
-    text-align: left; padding: 11px 16px; font-size: 11px; font-weight: 600;
-    letter-spacing: .05em; text-transform: uppercase; color: var(--text3);
-    border-bottom: 1px solid var(--border); background: var(--surface2);
-  }
-  td { padding: 11px 16px; font-size: 13px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tbody tr:hover td { background: var(--surface2); }
-
-  .btn-del {
-    background: none; border: none; cursor: pointer; color: var(--text3);
-    padding: 4px 8px; border-radius: 6px; font-size: 15px;
-  }
-  .btn-del:hover { background: var(--red-bg); color: var(--red); }
-
-  /* Badges */
-  .badge {
-    display: inline-block; padding: 3px 9px; border-radius: 20px;
-    font-size: 11px; font-weight: 600; letter-spacing: .02em;
-  }
-  .badge-green { background: var(--green-bg); color: var(--green); }
-  .badge-red { background: var(--red-bg); color: var(--red); }
-  .badge-blue { background: var(--blue-bg); color: var(--blue); }
-  .badge-amber { background: var(--amber-bg); color: var(--amber); }
-  .badge-gray { background: var(--surface2); color: var(--text2); }
-
-  /* Charts */
-  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .chart-box {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius-lg); padding: 18px 20px;
-  }
-  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 14px; color: var(--text2); }
-  .chart-wrap { position: relative; height: 200px; }
-  .chart-wrap-lg { position: relative; height: 260px; }
-  .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 10px; font-size: 12px; color: var(--text2); }
-  .legend span { display: flex; align-items: center; gap: 5px; }
-  .legend .dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
-
-  /* Progress */
-  .progress-row { margin-bottom: 20px; }
-  .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
-  .progress-label { font-size: 14px; font-weight: 500; }
-  .progress-values { font-size: 13px; color: var(--text2); font-family: 'DM Mono', monospace; }
-  .progress-bg { background: var(--surface2); border-radius: 6px; height: 9px; overflow: hidden; }
-  .progress-fill { height: 100%; border-radius: 6px; transition: width .5s cubic-bezier(.4,0,.2,1); }
-  .progress-pct { font-size: 11px; color: var(--text3); margin-top: 4px; }
-
-  /* Filters */
-  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
-  .filter-row select { font-size: 13px; padding: 7px 11px; border: 1px solid var(--border2); border-radius: var(--radius); background: var(--surface); color: var(--text); font-family: 'DM Sans', sans-serif; outline: none; cursor: pointer; }
-  .filter-row select:focus { border-color: var(--text); }
-
-  /* Section header */
-  .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-  .sec-title { font-size: 15px; font-weight: 600; }
-
-  /* Info */
-  .info-pill {
-    background: var(--blue-bg); color: var(--blue); border-radius: var(--radius);
-    padding: 10px 14px; font-size: 13px; margin-bottom: 20px;
-    display: flex; align-items: center; gap: 8px;
-  }
-
-  /* Empty */
-  .empty { text-align: center; padding: 48px 20px; color: var(--text3); }
-  .empty i { font-size: 40px; display: block; margin-bottom: 12px; }
-  .empty p { font-size: 14px; }
-
-  /* Divider */
-  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
-
-  /* Mono values */
-  .mono { font-family: 'DM Mono', monospace; }
-
-  /* Relatório */
-  .rel-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-
-  /* Mobile */
-  .hamburger {
-    display: none; background: none; border: none; cursor: pointer;
-    color: var(--text); font-size: 22px; padding: 4px;
-  }
-  .sidebar-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 40;
-  }
-
-  @media (max-width: 768px) {
-    .sidebar {
-      position: fixed; left: -220px; top: 0; bottom: 0; z-index: 50;
-      transition: left .25s cubic-bezier(.4,0,.2,1);
-      box-shadow: none;
-    }
-    .sidebar.open { left: 0; box-shadow: 4px 0 24px rgba(0,0,0,.15); }
-    .sidebar-overlay.open { display: block; }
-    .hamburger { display: block; }
-    .content { padding: 16px; }
-    .topbar { padding: 13px 16px; }
-    .charts-grid { grid-template-columns: 1fr; }
-    .rel-grid { grid-template-columns: 1fr; }
-    .cards { grid-template-columns: repeat(2, 1fr); }
-  }
+body{
+    font-family:Arial;
+    max-width:800px;
+    margin:20px auto;
+    padding:20px;
+}
+input{
+    padding:8px;
+    margin:5px;
+}
+button{
+    padding:8px 15px;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+}
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+}
 </style>
 </head>
 <body>
 
-<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+<h2>Resumo Diário</h2>
 
-<div class="app-shell">
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <div class="logo-icon"><i class="ti ti-car"></i></div>
-        <div>
-          <div class="logo-text">Uber Financeiro</div>
-          <div class="logo-sub">Painel do motorista</div>
-        </div>
-      </div>
-    </div>
+<input type="date" id="data">
+<input type="number" id="uber" placeholder="Uber">
+<input type="number" id="nove9" placeholder="99">
+<input type="number" id="gastos" placeholder="Gastos">
 
-    <div class="nav-section">
-      <div class="nav-label">Principal</div>
-      <button class="nav-item active" onclick="showTab('dashboard', this)">
-        <i class="ti ti-layout-dashboard"></i> Resumo
-      </button>
-      <button class="nav-item" onclick="showTab('corridas', this)">
-        <i class="ti ti-car"></i> Corridas
-      </button>
-      <button class="nav-item" onclick="showTab('gastos', this)">
-        <i class="ti ti-receipt"></i> Gastos
-      </button>
-    </div>
+<button onclick="adicionar()">Salvar</button>
 
-    <div class="nav-section" style="margin-top:8px">
-      <div class="nav-label">Planejamento</div>
-      <button class="nav-item" onclick="showTab('metas', this)">
-        <i class="ti ti-target"></i> Metas
-      </button>
-      <button class="nav-item" onclick="showTab('relatorio', this)">
-        <i class="ti ti-chart-bar"></i> Relatório
-      </button>
-    </div>
+<h3 id="totalMes">Total mês: R$ 0,00</h3>
 
-    <div class="sidebar-footer">Dados salvos no seu navegador</div>
-  </aside>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Uber</th>
+<th>99</th>
+<th>Gastos</th>
+<th>Lucro</th>
+</tr>
+</thead>
+<tbody id="tabela"></tbody>
+</table>
 
-  <div class="main">
-    <div class="topbar">
-      <div style="display:flex;align-items:center;gap:12px">
-        <button class="hamburger" onclick="openSidebar()"><i class="ti ti-menu-2"></i></button>
-        <div>
-          <div class="topbar-title" id="topbar-title">Resumo</div>
-          <div class="topbar-sub" id="topbar-sub">Visão geral financeira</div>
-        </div>
-      </div>
-      <div class="filter-row" style="margin:0">
-        <select id="global-mes" onchange="onGlobalFilter()">
-          <option value="all">Todos os meses</option>
-          <option value="0">Janeiro</option><option value="1">Fevereiro</option>
-          <option value="2">Março</option><option value="3">Abril</option>
-          <option value="4">Maio</option><option value="5">Junho</option>
-          <option value="6">Julho</option><option value="7">Agosto</option>
-          <option value="8">Setembro</option><option value="9">Outubro</option>
-          <option value="10">Novembro</option><option value="11">Dezembro</option>
-        </select>
-        <select id="global-ano" onchange="onGlobalFilter()">
-          <option value="2025">2025</option>
-          <option value="2024">2024</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="content">
-
-      <!-- DASHBOARD -->
-      <div class="section active" id="tab-dashboard">
-        <div class="cards" id="cards-resumo"></div>
-
-        <div class="chart-box" style="margin-bottom:16px">
-          <div class="chart-title">Evolução mensal</div>
-          <div class="legend" id="leg-evolucao"></div>
-          <div class="chart-wrap-lg"><canvas id="chartEvolucao" role="img" aria-label="Evolução mensal">Dados mensais.</canvas></div>
-        </div>
-
-        <div class="charts-grid">
-          <div class="chart-box">
-            <div class="chart-title">Gastos por categoria</div>
-            <div class="legend" id="leg-cat"></div>
-            <div class="chart-wrap"><canvas id="chartCat" role="img" aria-label="Gastos por categoria">Categorias.</canvas></div>
-          </div>
-          <div class="chart-box">
-            <div class="chart-title">Corridas por turno</div>
-            <div class="legend" id="leg-turno"></div>
-            <div class="chart-wrap"><canvas id="chartTurno" role="img" aria-label="Corridas por turno">Turnos.</canvas></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CORRIDAS -->
-      <div class="section" id="tab-corridas">
-        <div class="form-box">
-          <div class="form-title"><i class="ti ti-plus-circle" style="font-size:18px"></i> Registrar corrida</div>
-          <div class="form-row" style="margin-bottom:12px">
-            <div class="field"><label>Data</label><input type="date" id="c-data"></div>
-            <div class="field"><label>Valor recebido (R$)</label><input type="number" id="c-valor" placeholder="0,00" step="0.01" min="0"></div>
-            <div class="field"><label>Km rodado</label><input type="number" id="c-km" placeholder="0" step="0.1" min="0"></div>
-            <div class="field"><label>Horas trabalhadas</label><input type="number" id="c-horas" placeholder="0" step="0.5" min="0"></div>
-          </div>
-          <div class="form-row">
-            <div class="field"><label>Turno</label>
-              <select id="c-turno">
-                <option>Manhã</option><option>Tarde</option><option>Noite</option><option>Madrugada</option>
-              </select>
-            </div>
-            <div class="field"><label>Plataforma</label>
-              <select id="c-plataforma">
-                <option>Uber</option><option>99</option><option>inDrive</option><option>Outra</option>
-              </select>
-            </div>
-            <div class="field"><label>Observação</label><input type="text" id="c-obs" placeholder="Opcional..."></div>
-            <div class="field" style="justify-content:flex-end">
-              <button class="btn btn-primary" onclick="addCorrida()"><i class="ti ti-plus"></i> Adicionar</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="sec-header">
-          <div class="sec-title">Histórico de corridas</div>
-          <div class="filter-row" style="margin:0">
-            <select id="fc-turno" onchange="renderCorridas()">
-              <option value="all">Todos os turnos</option>
-              <option>Manhã</option><option>Tarde</option><option>Noite</option><option>Madrugada</option>
-            </select>
-          </div>
-        </div>
-        <div id="table-corridas"></div>
-      </div>
-
-      <!-- GASTOS -->
-      <div class="section" id="tab-gastos">
-        <div class="form-box">
-          <div class="form-title"><i class="ti ti-plus-circle" style="font-size:18px"></i> Registrar gasto</div>
-          <div class="form-row" style="margin-bottom:12px">
-            <div class="field"><label>Data</label><input type="date" id="g-data"></div>
-            <div class="field"><label>Categoria</label>
-              <select id="g-cat">
-                <option>Combustível</option><option>Manutenção</option><option>Lavagem</option>
-                <option>Seguro</option><option>IPVA/Documentação</option><option>Alimentação</option>
-                <option>Celular/Dados</option><option>Multa</option><option>Estacionamento</option>
-                <option>Outros</option>
-              </select>
-            </div>
-            <div class="field"><label>Valor (R$)</label><input type="number" id="g-valor" placeholder="0,00" step="0.01" min="0"></div>
-            <div class="field"><label>Litros (combustível)</label><input type="number" id="g-litros" placeholder="Opcional" step="0.01" min="0"></div>
-          </div>
-          <div class="form-row">
-            <div class="field"><label>Descrição</label><input type="text" id="g-desc" placeholder="Opcional..."></div>
-            <div class="field" style="justify-content:flex-end">
-              <button class="btn btn-primary" onclick="addGasto()"><i class="ti ti-plus"></i> Adicionar</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="sec-header">
-          <div class="sec-title">Histórico de gastos</div>
-          <div class="filter-row" style="margin:0">
-            <select id="fg-cat" onchange="renderGastos()">
-              <option value="all">Todas as categorias</option>
-              <option>Combustível</option><option>Manutenção</option><option>Lavagem</option>
-              <option>Seguro</option><option>IPVA/Documentação</option><option>Alimentação</option>
-              <option>Celular/Dados</option><option>Multa</option><option>Estacionamento</option>
-              <option>Outros</option>
-            </select>
-          </div>
-        </div>
-        <div id="table-gastos"></div>
-      </div>
-
-      <!-- METAS -->
-      <div class="section" id="tab-metas">
-        <div class="form-box">
-          <div class="form-title"><i class="ti ti-target" style="font-size:18px"></i> Definir metas mensais</div>
-          <div class="info-pill"><i class="ti ti-info-circle"></i> As metas se aplicam ao mês selecionado no filtro acima.</div>
-          <div class="form-row" style="margin-bottom:12px">
-            <div class="field"><label>Meta de ganhos (R$)</label><input type="number" id="m-ganhos" placeholder="Ex: 5000" step="100" min="0"></div>
-            <div class="field"><label>Limite de gastos (R$)</label><input type="number" id="m-gastos" placeholder="Ex: 2000" step="100" min="0"></div>
-            <div class="field"><label>Meta de corridas</label><input type="number" id="m-corridas" placeholder="Ex: 200" step="1" min="0"></div>
-            <div class="field"><label>Meta de km</label><input type="number" id="m-km" placeholder="Ex: 3000" step="50" min="0"></div>
-          </div>
-          <div class="form-row">
-            <button class="btn btn-primary" onclick="saveMetas()"><i class="ti ti-check"></i> Salvar metas</button>
-          </div>
-        </div>
-        <div id="metas-progresso"></div>
-      </div>
-
-      <!-- RELATÓRIO -->
-      <div class="section" id="tab-relatorio">
-        <div id="relatorio-content"></div>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-const CAT_COLORS = {
-  'Combustível':'#2563c4','Manutenção':'#c4452b','Lavagem':'#1d9e75',
-  'Seguro':'#7f77dd','IPVA/Documentação':'#c45386','Alimentação':'#b87520',
-  'Celular/Dados':'#5a9922','Multa':'#e24b4a','Estacionamento':'#888780','Outros':'#6b6b63'
-};
-const TURNO_COLORS = {'Manhã':'#2563c4','Tarde':'#e8a020','Noite':'#5a3eb5','Madrugada':'#1d9e75'};
-const TOPBAR_INFO = {
-  dashboard: ['Resumo','Visão geral financeira'],
-  corridas: ['Corridas','Registre e acompanhe suas corridas'],
-  gastos: ['Gastos','Controle seus custos operacionais'],
-  metas: ['Metas','Acompanhe seu progresso mensal'],
-  relatorio: ['Relatório','Análise detalhada do período']
-};
+let dados = JSON.parse(localStorage.getItem("corridas")) || [];
 
-let corridas = [];
-let gastos = [];
-let metas = {};
-let currentTab = 'dashboard';
-let charts = {};
+function adicionar(){
+    let registro = {
+        data:data.value,
+        uber:Number(uber.value),
+        nove9:Number(nove9.value),
+        gastos:Number(gastos.value)
+    };
 
-try { corridas = JSON.parse(localStorage.getItem('ub_corridas')||'[]'); } catch(e){}
-try { gastos = JSON.parse(localStorage.getItem('ub_gastos')||'[]'); } catch(e){}
-try { metas = JSON.parse(localStorage.getItem('ub_metas')||'{}'); } catch(e){}
+    dados.push(registro);
+    localStorage.setItem("corridas",JSON.stringify(dados));
 
-function save() {
-  try {
-    localStorage.setItem('ub_corridas', JSON.stringify(corridas));
-    localStorage.setItem('ub_gastos', JSON.stringify(gastos));
-    localStorage.setItem('ub_metas', JSON.stringify(metas));
-  } catch(e){}
+    render();
 }
 
-function fmtR(v) {
-  return 'R$ ' + Number(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-}
-function fmtN(v,d=1) { return Number(v).toLocaleString('pt-BR',{maximumFractionDigits:d}); }
-function today() { return new Date().toISOString().split('T')[0]; }
-function formatDate(d) { const [y,m,day]=d.split('-'); return `${day}/${m}/${y}`; }
+function render(){
+    let html="";
+    let totalMes=0;
 
-function getMes() { return document.getElementById('global-mes').value; }
-function getAno() { return document.getElementById('global-ano').value; }
+    dados.forEach(r=>{
+        let lucro = r.uber + r.nove9 - r.gastos;
+        totalMes += lucro;
 
-function filterItems(items) {
-  const mes = getMes(); const ano = getAno();
-  return items.filter(i => {
-    const d = new Date(i.data+'T00:00:00');
-    if(ano !== 'all' && d.getFullYear() !== parseInt(ano)) return false;
-    if(mes !== 'all' && d.getMonth() !== parseInt(mes)) return false;
-    return true;
-  });
-}
+        html += `
+        <tr>
+            <td>${r.data}</td>
+            <td>R$ ${r.uber.toFixed(2)}</td>
+            <td>R$ ${r.nove9.toFixed(2)}</td>
+            <td>R$ ${r.gastos.toFixed(2)}</td>
+            <td>R$ ${lucro.toFixed(2)}</td>
+        </tr>`;
+    });
 
-function openSidebar() {
-  document.getElementById('sidebar').classList.add('open');
-  document.getElementById('overlay').classList.add('open');
-}
-function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
+    tabela.innerHTML = html;
+    totalMes.innerHTML = `Total mês: R$ ${totalMes.toFixed(2)}`;
 }
 
-function showTab(t, btn) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-'+t).classList.add('active');
-  if(btn) btn.classList.add('active');
-  currentTab = t;
-  const info = TOPBAR_INFO[t];
-  document.getElementById('topbar-title').textContent = info[0];
-  document.getElementById('topbar-sub').textContent = info[1];
-  closeSidebar();
-  renderTab(t);
-}
-
-function onGlobalFilter() { renderTab(currentTab); }
-
-function renderTab(t) {
-  if(t==='dashboard') renderDash();
-  if(t==='corridas') renderCorridas();
-  if(t==='gastos') renderGastos();
-  if(t==='metas') renderMetas();
-  if(t==='relatorio') renderRelatorio();
-}
-
-function destroyChart(id) { if(charts[id]) { charts[id].destroy(); delete charts[id]; } }
-
-// ---- CORRIDAS ----
-function addCorrida() {
-  const v = parseFloat(document.getElementById('c-valor').value);
-  const d = document.getElementById('c-data').value;
-  if(!d || isNaN(v) || v <= 0) { alert('Preencha a data e o valor!'); return; }
-  corridas.push({
-    id: Date.now(), data: d, valor: v,
-    km: parseFloat(document.getElementById('c-km').value)||0,
-    turno: document.getElementById('c-turno').value,
-    horas: parseFloat(document.getElementById('c-horas').value)||0,
-    plataforma: document.getElementById('c-plataforma').value,
-    obs: document.getElementById('c-obs').value
-  });
-  ['c-valor','c-km','c-horas','c-obs'].forEach(id => document.getElementById(id).value='');
-  save(); renderCorridas();
-}
-
-function delCorrida(id) {
-  if(!confirm('Remover esta corrida?')) return;
-  corridas = corridas.filter(c => c.id !== id); save(); renderCorridas();
-}
-
-function renderCorridas() {
-  const f = filterItems(corridas);
-  const turno = document.getElementById('fc-turno').value;
-  const filtered = turno==='all' ? f : f.filter(c => c.turno===turno);
-  const sorted = [...filtered].sort((a,b) => b.data.localeCompare(a.data));
-  const el = document.getElementById('table-corridas');
-  if(!sorted.length) {
-    el.innerHTML='<div class="empty"><i class="ti ti-car"></i><p>Nenhuma corrida registrada para o período.</p></div>'; return;
-  }
-  el.innerHTML = `<div class="table-box"><table><thead><tr>
-    <th>Data</th><th>Plataforma</th><th>Turno</th><th>Valor</th><th>Km</th><th>Horas</th><th>R$/h</th><th></th>
-  </tr></thead><tbody>${sorted.map(c => {
-    const rph = c.horas>0 ? fmtR(c.valor/c.horas) : '-';
-    const tc = {Manhã:'blue',Tarde:'amber',Noite:'gray',Madrugada:'green'}[c.turno]||'gray';
-    return `<tr>
-      <td class="mono">${formatDate(c.data)}</td>
-      <td>${c.plataforma}</td>
-      <td><span class="badge badge-${tc}">${c.turno}</span></td>
-      <td class="mono" style="color:var(--green);font-weight:500">${fmtR(c.valor)}</td>
-      <td class="mono">${c.km>0?fmtN(c.km)+' km':'-'}</td>
-      <td class="mono">${c.horas>0?fmtN(c.horas)+'h':'-'}</td>
-      <td class="mono">${rph}</td>
-      <td><button class="btn-del" onclick="delCorrida(${c.id})" title="Remover"><i class="ti ti-trash"></i></button></td>
-    </tr>`;
-  }).join('')}</tbody></table></div>`;
-}
-
-// ---- GASTOS ----
-function addGasto() {
-  const v = parseFloat(document.getElementById('g-valor').value);
-  const d = document.getElementById('g-data').value;
-  if(!d || isNaN(v) || v<=0) { alert('Preencha a data e o valor!'); return; }
-  gastos.push({
-    id: Date.now(), data: d, valor: v,
-    categoria: document.getElementById('g-cat').value,
-    litros: parseFloat(document.getElementById('g-litros').value)||0,
-    desc: document.getElementById('g-desc').value
-  });
-  ['g-valor','g-litros','g-desc'].forEach(id => document.getElementById(id).value='');
-  save(); renderGastos();
-}
-
-function delGasto(id) {
-  if(!confirm('Remover este gasto?')) return;
-  gastos = gastos.filter(g => g.id!==id); save(); renderGastos();
-}
-
-function renderGastos() {
-  const f = filterItems(gastos);
-  const cat = document.getElementById('fg-cat').value;
-  const filtered = cat==='all' ? f : f.filter(g => g.categoria===cat);
-  const sorted = [...filtered].sort((a,b) => b.data.localeCompare(a.data));
-  const el = document.getElementById('table-gastos');
-  if(!sorted.length) {
-    el.innerHTML='<div class="empty"><i class="ti ti-receipt"></i><p>Nenhum gasto registrado para o período.</p></div>'; return;
-  }
-  el.innerHTML = `<div class="table-box"><table><thead><tr>
-    <th>Data</th><th>Categoria</th><th>Valor</th><th>Litros</th><th>Descrição</th><th></th>
-  </tr></thead><tbody>${sorted.map(g => {
-    return `<tr>
-      <td class="mono">${formatDate(g.data)}</td>
-      <td><span class="badge badge-red">${g.categoria}</span></td>
-      <td class="mono" style="color:var(--red);font-weight:500">${fmtR(g.valor)}</td>
-      <td class="mono">${g.litros>0?fmtN(g.litros)+'L':'-'}</td>
-      <td style="color:var(--text2)">${g.desc||'-'}</td>
-      <td><button class="btn-del" onclick="delGasto(${g.id})" title="Remover"><i class="ti ti-trash"></i></button></td>
-    </tr>`;
-  }).join('')}</tbody></table></div>`;
-}
-
-// ---- METAS ----
-function saveMetas() {
-  const mes = getMes(); const ano = getAno();
-  const key = mes==='all' ? `${ano}-all` : `${ano}-${mes}`;
-  if(!metas[key]) metas[key] = {};
-  metas[key] = {
-    ganhos: parseFloat(document.getElementById('m-ganhos').value)||0,
-    gastos: parseFloat(document.getElementById('m-gastos').value)||0,
-    corridas: parseFloat(document.getElementById('m-corridas').value)||0,
-    km: parseFloat(document.getElementById('m-km').value)||0
-  };
-  save(); renderMetas();
-}
-
-function renderMetas() {
-  const mes = getMes(); const ano = getAno();
-  const key = mes==='all' ? `${ano}-all` : `${ano}-${mes}`;
-  const m = metas[key]||{};
-  if(m.ganhos) document.getElementById('m-ganhos').value=m.ganhos;
-  if(m.gastos) document.getElementById('m-gastos').value=m.gastos;
-  if(m.corridas) document.getElementById('m-corridas').value=m.corridas;
-  if(m.km) document.getElementById('m-km').value=m.km;
-
-  const fc = filterItems(corridas);
-  const fg = filterItems(gastos);
-  const totalG = fc.reduce((s,c)=>s+c.valor,0);
-  const totalGst = fg.reduce((s,g)=>s+g.valor,0);
-  const totalKm = fc.reduce((s,c)=>s+c.km,0);
-
-  const el = document.getElementById('metas-progresso');
-  if(!m.ganhos && !m.gastos && !m.corridas && !m.km) {
-    el.innerHTML='<div class="empty"><i class="ti ti-target"></i><p>Defina suas metas acima e salve.</p></div>'; return;
-  }
-
-  const periodo = mes==='all'?`Acumulado ${ano}`:MESES[parseInt(mes)]+' '+ano;
-  const items = [
-    {label:'Ganhos',icon:'ti-cash',atual:totalG,meta:m.ganhos,fmt:fmtR,cor:'#2d7a47'},
-    {label:'Limite de gastos',icon:'ti-receipt',atual:totalGst,meta:m.gastos,fmt:fmtR,cor:'#b83232',inv:true},
-    {label:'Corridas',icon:'ti-car',atual:fc.length,meta:m.corridas,fmt:v=>Math.round(v)+' corridas',cor:'#1a5fa8'},
-    {label:'Quilometragem',icon:'ti-map-pin',atual:totalKm,meta:m.km,fmt:v=>fmtN(v)+' km',cor:'#8a5c0a'}
-  ];
-
-  el.innerHTML = `<div class="form-box">
-    <div class="form-title"><i class="ti ti-chart-line" style="font-size:18px"></i> Progresso — ${periodo}</div>
-    ${items.map(it => {
-      if(!it.meta) return '';
-      const pct = Math.min((it.atual/it.meta)*100,100);
-      const over = it.inv && it.atual>it.meta;
-      const cor = over ? '#b83232' : it.cor;
-      return `<div class="progress-row">
-        <div class="progress-header">
-          <div class="progress-label"><i class="ti ${it.icon}" style="vertical-align:-2px;margin-right:5px"></i>${it.label}</div>
-          <div class="progress-values">${it.fmt(it.atual)} / ${it.fmt(it.meta)}</div>
-        </div>
-        <div class="progress-bg"><div class="progress-fill" style="width:${pct.toFixed(1)}%;background:${cor}"></div></div>
-        <div class="progress-pct">${pct.toFixed(1)}% ${it.inv?(over?'— ⚠️ limite ultrapassado!':'do limite'):'da meta'}</div>
-      </div>`;
-    }).join('')}
-  </div>`;
-}
-
-// ---- DASHBOARD ----
-function renderDash() {
-  const fc = filterItems(corridas);
-  const fg = filterItems(gastos);
-  const totalG = fc.reduce((s,c)=>s+c.valor,0);
-  const totalGst = fg.reduce((s,g)=>s+g.valor,0);
-  const lucro = totalG - totalGst;
-  const totalKm = fc.reduce((s,c)=>s+c.km,0);
-  const totalH = fc.reduce((s,c)=>s+c.horas,0);
-  const mediaH = totalH>0 ? totalG/totalH : 0;
-
-  document.getElementById('cards-resumo').innerHTML = `
-    <div class="card is-blue">
-      <div class="card-label"><i class="ti ti-cash" style="font-size:14px"></i> Ganhos brutos</div>
-      <div class="card-value">${fmtR(totalG)}</div>
-      <div class="card-sub">${fc.length} corridas registradas</div>
-    </div>
-    <div class="card is-red">
-      <div class="card-label"><i class="ti ti-receipt" style="font-size:14px"></i> Total de gastos</div>
-      <div class="card-value">${fmtR(totalGst)}</div>
-      <div class="card-sub">${fg.length} lançamentos</div>
-    </div>
-    <div class="card ${lucro>=0?'is-green':'is-red'}">
-      <div class="card-label"><i class="ti ti-trending-up" style="font-size:14px"></i> Lucro líquido</div>
-      <div class="card-value">${fmtR(lucro)}</div>
-      <div class="card-sub">${totalG>0?(lucro/totalG*100).toFixed(1)+'% de margem':'-'}</div>
-    </div>
-    <div class="card">
-      <div class="card-label"><i class="ti ti-road" style="font-size:14px"></i> Km rodados</div>
-      <div class="card-value">${fmtN(totalKm,0)}</div>
-      <div class="card-sub">quilômetros</div>
-    </div>
-    <div class="card">
-      <div class="card-label"><i class="ti ti-clock" style="font-size:14px"></i> Ganho por hora</div>
-      <div class="card-value">${mediaH>0?fmtR(mediaH):'-'}</div>
-      <div class="card-sub">${fmtN(totalH,1)}h trabalhadas</div>
-    </div>
-    <div class="card">
-      <div class="card-label"><i class="ti ti-gas-station" style="font-size:14px"></i> Custo por km</div>
-      <div class="card-value">${totalKm>0?'R$ '+Number(totalGst/totalKm).toFixed(2):'-'}</div>
-      <div class="card-sub">gasto ÷ km rodado</div>
-    </div>
-  `;
-
-  renderChartEvolucao();
-  renderChartCat(fg);
-  renderChartTurno(fc);
-}
-
-function renderChartEvolucao() {
-  destroyChart('chartEvolucao');
-  const ano = parseInt(getAno());
-  const ganhos = Array(12).fill(0);
-  const gsts = Array(12).fill(0);
-  corridas.filter(c=>new Date(c.data+'T00:00:00').getFullYear()===ano)
-    .forEach(c=>{ganhos[new Date(c.data+'T00:00:00').getMonth()]+=c.valor;});
-  gastos.filter(g=>new Date(g.data+'T00:00:00').getFullYear()===ano)
-    .forEach(g=>{gsts[new Date(g.data+'T00:00:00').getMonth()]+=g.valor;});
-
-  document.getElementById('leg-evolucao').innerHTML = `
-    <span><span class="dot" style="background:#2563c4"></span>Ganhos</span>
-    <span><span class="dot" style="background:#e24b4a"></span>Gastos</span>
-    <span><span class="dot" style="background:#1d9e75"></span>Lucro</span>
-  `;
-
-  charts['chartEvolucao'] = new Chart(document.getElementById('chartEvolucao'),{
-    type:'bar',
-    data:{
-      labels:MESES.map(m=>m.slice(0,3)),
-      datasets:[
-        {label:'Ganhos',data:ganhos,backgroundColor:'#2563c4',borderRadius:4,borderSkipped:false},
-        {label:'Gastos',data:gsts,backgroundColor:'#e24b4a',borderRadius:4,borderSkipped:false},
-        {label:'Lucro',data:ganhos.map((g,i)=>g-gsts[i]),type:'line',
-          borderColor:'#1d9e75',backgroundColor:'rgba(29,158,117,.08)',tension:.35,
-          fill:true,pointRadius:4,borderWidth:2,pointBackgroundColor:'#1d9e75'}
-      ]
-    },
-    options:{
-      responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false}},
-      scales:{
-        y:{ticks:{callback:v=>'R$'+Math.round(v/1000)+'k',font:{size:11},color:'#888'},grid:{color:'rgba(128,128,128,.1)'}},
-        x:{ticks:{font:{size:11},color:'#888'},grid:{display:false}}
-      }
-    }
-  });
-}
-
-function renderChartCat(fg) {
-  destroyChart('chartCat');
-  const catMap={};
-  fg.forEach(g=>{catMap[g.categoria]=(catMap[g.categoria]||0)+g.valor;});
-  const cats=Object.keys(catMap).filter(k=>catMap[k]>0);
-  if(!cats.length){document.getElementById('leg-cat').innerHTML='';return;}
-  document.getElementById('leg-cat').innerHTML=cats.map(c=>
-    `<span><span class="dot" style="background:${CAT_COLORS[c]||'#888'}"></span>${c}</span>`).join('');
-  charts['chartCat']=new Chart(document.getElementById('chartCat'),{
-    type:'doughnut',
-    data:{labels:cats,datasets:[{data:cats.map(c=>catMap[c]),backgroundColor:cats.map(c=>CAT_COLORS[c]||'#888'),borderWidth:2,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
-  });
-}
-
-function renderChartTurno(fc) {
-  destroyChart('chartTurno');
-  const turnos=['Manhã','Tarde','Noite','Madrugada'];
-  const counts=turnos.map(t=>fc.filter(c=>c.turno===t).length);
-  document.getElementById('leg-turno').innerHTML=turnos.map((t,i)=>
-    `<span><span class="dot" style="background:${TURNO_COLORS[t]}"></span>${t} (${counts[i]})</span>`).join('');
-  charts['chartTurno']=new Chart(document.getElementById('chartTurno'),{
-    type:'doughnut',
-    data:{labels:turnos,datasets:[{data:counts,backgroundColor:turnos.map(t=>TURNO_COLORS[t]),borderWidth:2,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}
-  });
-}
-
-// ---- RELATÓRIO ----
-function renderRelatorio() {
-  const fc = filterItems(corridas);
-  const fg = filterItems(gastos);
-  const totalG = fc.reduce((s,c)=>s+c.valor,0);
-  const totalGst = fg.reduce((s,g)=>s+g.valor,0);
-  const lucro = totalG-totalGst;
-  const totalKm = fc.reduce((s,c)=>s+c.km,0);
-  const totalH = fc.reduce((s,c)=>s+c.horas,0);
-  const catMap={};
-  fg.forEach(g=>{catMap[g.categoria]=(catMap[g.categoria]||0)+g.valor;});
-  const mes=getMes(); const ano=getAno();
-  const periodo=mes==='all'?`Acumulado ${ano}`:MESES[parseInt(mes)]+' '+ano;
-
-  document.getElementById('relatorio-content').innerHTML = `
-    <div class="form-box" style="margin-bottom:16px">
-      <div class="form-title" style="font-size:17px">${periodo}</div>
-      <div class="rel-grid">
-        <div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Ganhos brutos</div>
-          <div style="font-size:26px;font-weight:600;font-family:'DM Mono',monospace;color:var(--blue)">${fmtR(totalG)}</div>
-        </div>
-        <div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Total de gastos</div>
-          <div style="font-size:26px;font-weight:600;font-family:'DM Mono',monospace;color:var(--red)">${fmtR(totalGst)}</div>
-        </div>
-        <div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Lucro líquido</div>
-          <div style="font-size:26px;font-weight:600;font-family:'DM Mono',monospace;color:${lucro>=0?'var(--green)':'var(--red)'}">${fmtR(lucro)}</div>
-        </div>
-        <div>
-          <div style="font-size:12px;color:var(--text2);margin-bottom:4px">Margem de lucro</div>
-          <div style="font-size:26px;font-weight:600;font-family:'DM Mono',monospace">${totalG>0?(lucro/totalG*100).toFixed(1)+'%':'-'}</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="form-box" style="margin-bottom:16px">
-      <div class="form-title">Indicadores de desempenho</div>
-      <div class="table-box">
-        <table>
-          <tbody>
-            <tr><td style="color:var(--text2)">Total de corridas</td><td class="mono" style="text-align:right;font-weight:500">${fc.length}</td></tr>
-            <tr><td style="color:var(--text2)">Km total rodado</td><td class="mono" style="text-align:right;font-weight:500">${fmtN(totalKm,0)} km</td></tr>
-            <tr><td style="color:var(--text2)">Horas trabalhadas</td><td class="mono" style="text-align:right;font-weight:500">${fmtN(totalH,1)}h</td></tr>
-            <tr><td style="color:var(--text2)">Valor médio por corrida</td><td class="mono" style="text-align:right;font-weight:500">${fc.length>0?fmtR(totalG/fc.length):'-'}</td></tr>
-            <tr><td style="color:var(--text2)">Ganho por hora</td><td class="mono" style="text-align:right;font-weight:500">${totalH>0?fmtR(totalG/totalH):'-'}</td></tr>
-            <tr><td style="color:var(--text2)">Custo por km</td><td class="mono" style="text-align:right;font-weight:500">${totalKm>0?'R$ '+Number(totalGst/totalKm).toFixed(2)+'/km':'-'}</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    ${Object.keys(catMap).length?`
-    <div class="form-box">
-      <div class="form-title">Gastos por categoria</div>
-      <div class="table-box">
-        <table>
-          <thead><tr><th>Categoria</th><th style="text-align:right">Valor</th><th style="text-align:right">% do total</th></tr></thead>
-          <tbody>${Object.entries(catMap).sort((a,b)=>b[1]-a[1]).map(([k,v])=>
-            `<tr>
-              <td><span class="badge badge-red">${k}</span></td>
-              <td class="mono" style="text-align:right;color:var(--red)">${fmtR(v)}</td>
-              <td class="mono" style="text-align:right;color:var(--text2)">${totalGst>0?(v/totalGst*100).toFixed(1)+'%':'0%'}</td>
-            </tr>`
-          ).join('')}</tbody>
-        </table>
-      </div>
-    </div>`:''}
-  `;
-}
-
-// Init
-document.getElementById('c-data').value = today();
-document.getElementById('g-data').value = today();
-const now = new Date();
-document.getElementById('global-mes').value = now.getMonth().toString();
-renderDash();
+render();
 </script>
+
 </body>
 </html>
