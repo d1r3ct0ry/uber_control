@@ -2,109 +2,878 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rubens do Dudu Financeiro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO$$ – Controle Financeiro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-body{font-family:Inter,Arial,sans-serif;background:#0f172a;color:#fff;max-width:900px;margin:auto;padding:16px}
-.card{background:#1e293b;border-radius:18px;padding:16px;margin:10px 0}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.big{font-size:36px;font-weight:700;color:#22c55e}
-.small{color:#94a3b8}
-input,select{width:100%;padding:10px;border-radius:10px;border:none;margin:5px 0}
-button{padding:12px 16px;border:none;border-radius:12px;background:#22c55e;color:white;font-weight:bold;cursor:pointer}
-table{width:100%;border-collapse:collapse}
-td,th{padding:8px;border-bottom:1px solid #334155}
-.red{color:#ef4444}.green{color:#22c55e}
+  :root {
+    --bg: #0a0f1e;
+    --surface: #111827;
+    --surface2: #1a2235;
+    --border: #1f2d45;
+    --accent: #00e5a0;
+    --accent2: #f5a623;
+    --red: #ff4d6d;
+    --uber: #000000;
+    --noventa: #ffcc00;
+    --text: #e8f0fe;
+    --muted: #607090;
+    --font: 'Syne', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #0d1b2a 0%, #0a1628 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+  .logo span { color: var(--accent); }
+
+  .date-badge {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--surface2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tab {
+    flex: 1;
+    padding: 14px 10px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+  .tab.active {
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+  }
+
+  /* MAIN */
+  main { padding: 16px; max-width: 480px; margin: 0 auto; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 14px;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-title {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* STATS GRID */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .stat-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    animation: fadeUp 0.3s ease both;
+  }
+  .stat-box.accent { border-color: rgba(0,229,160,0.3); background: rgba(0,229,160,0.05); }
+  .stat-box.red { border-color: rgba(255,77,109,0.3); background: rgba(255,77,109,0.05); }
+  .stat-box.amber { border-color: rgba(245,166,35,0.3); background: rgba(245,166,35,0.05); }
+  .stat-box.blue { border-color: rgba(99,179,237,0.3); background: rgba(99,179,237,0.05); }
+
+  .stat-label {
+    font-size: 0.6rem;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: var(--mono);
+    font-size: 1.3rem;
+    font-weight: 500;
+  }
+  .stat-box.accent .stat-value { color: var(--accent); }
+  .stat-box.red .stat-value { color: var(--red); }
+  .stat-box.amber .stat-value { color: var(--accent2); }
+  .stat-box.blue .stat-value { color: #63b3ed; }
+
+  /* INPUTS */
+  .input-group {
+    margin-bottom: 14px;
+  }
+  label {
+    display: block;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  input, select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    transition: border 0.2s;
+    -webkit-appearance: none;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  select option { background: var(--surface); }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* PLATFORM SELECTOR */
+  .platform-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .plat-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .plat-btn.uber.active {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+  }
+  .plat-btn.noventa.active {
+    background: #ffcc00;
+    color: #000;
+    border-color: #ffcc00;
+  }
+
+  /* BUTTONS */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-family: var(--font);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-accent {
+    background: var(--accent);
+    color: #000;
+  }
+  .btn-accent:hover { background: #00c98a; transform: translateY(-1px); }
+
+  .btn-wpp {
+    background: #25D366;
+    color: #fff;
+    margin-top: 10px;
+  }
+  .btn-wpp:hover { background: #1ebe5b; transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.8rem;
+    padding: 10px;
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* TRIP LIST */
+  .trip-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    animation: fadeUp 0.2s ease both;
+  }
+  .trip-item:last-child { border-bottom: none; }
+
+  .trip-plat {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .trip-plat.uber { background: #fff; color: #000; }
+  .trip-plat.noventa { background: #ffcc00; color: #000; }
+
+  .trip-info { flex: 1; }
+  .trip-name { font-size: 0.8rem; font-weight: 600; }
+  .trip-meta { font-size: 0.65rem; color: var(--muted); font-family: var(--mono); }
+
+  .trip-value { font-family: var(--mono); font-size: 0.9rem; font-weight: 500; }
+  .trip-value.income { color: var(--accent); }
+  .trip-value.expense { color: var(--red); }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px;
+    border-radius: 6px;
+    transition: color 0.2s;
+  }
+  .delete-btn:hover { color: var(--red); }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 10px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    background: linear-gradient(90deg, var(--accent), #00c3ff);
+  }
+  .progress-fill.over { background: linear-gradient(90deg, var(--accent2), var(--red)); }
+
+  /* META ROW */
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    font-family: var(--mono);
+  }
+
+  /* EMPTY STATE */
+  .empty {
+    text-align: center;
+    padding: 30px 0;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .empty-icon { font-size: 2rem; margin-bottom: 8px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--accent);
+    color: #000;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* SECTION visibility */
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* KM indicator */
+  .km-tag {
+    display: inline-block;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    padding: 2px 7px;
+    margin-left: 6px;
+  }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0;
+  }
+
+  .highlight-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    font-size: 0.85rem;
+  }
+  .highlight-row .hl-label { color: var(--muted); font-size: 0.75rem; }
+  .highlight-row .hl-val { font-family: var(--mono); font-weight: 500; }
+
+  .meta-info {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 10px;
+  }
 </style>
 </head>
 <body>
-<h1>🚗 Rubens do Dudu Financeiro</h1>
 
-<div class="card">
-<div class="small">Saldo Atual</div>
-<div class="big" id="saldo">R$ 0,00</div>
+<header>
+  <div class="logo">MOTO<span>$$</span></div>
+  <div class="date-badge" id="headerDate">—</div>
+</header>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('dashboard')">📊 Painel</button>
+  <button class="tab" onclick="switchTab('registrar')">➕ Registrar</button>
+  <button class="tab" onclick="switchTab('historico')">🕓 Histórico</button>
+  <button class="tab" onclick="switchTab('config')">⚙️ Metas</button>
 </div>
 
-<div class="grid">
-<div class="card"><div class="small">Uber</div><h2 id="uberTotal">R$ 0</h2></div>
-<div class="card"><div class="small">99</div><h2 id="noveTotal">R$ 0</h2></div>
-<div class="card"><div class="small">Gastos</div><h2 class="red" id="gastosTotal">R$ 0</h2></div>
-<div class="card"><div class="small">Lançamentos</div><h2 id="qtd">0</h2></div>
-</div>
+<main>
 
-<div class="card">
-<h3>Novo lançamento</h3>
-<input type="date" id="data">
-<select id="tipo">
-<option>Uber</option>
-<option>99</option>
-<option>Gasto</option>
-</select>
-<input type="number" id="valor" placeholder="Valor">
-<button onclick="add()">Salvar</button>
-</div>
+  <!-- DASHBOARD -->
+  <div id="sec-dashboard" class="section active">
+    <div class="stats-grid">
+      <div class="stat-box accent">
+        <div class="stat-label">Ganhos Hoje</div>
+        <div class="stat-value" id="totalGanhos">R$ 0,00</div>
+      </div>
+      <div class="stat-box red">
+        <div class="stat-label">Gastos Hoje</div>
+        <div class="stat-value" id="totalGastos">R$ 0,00</div>
+      </div>
+      <div class="stat-box blue">
+        <div class="stat-label">Lucro Líquido</div>
+        <div class="stat-value" id="totalLucro">R$ 0,00</div>
+      </div>
+      <div class="stat-box amber">
+        <div class="stat-label">Corridas Hoje</div>
+        <div class="stat-value" id="totalCorridas">0</div>
+      </div>
+    </div>
 
-<div class="card">
-<h3>Histórico</h3>
-<table>
-<thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
-<tbody id="lista"></tbody>
-</table>
-</div>
+    <div class="card">
+      <div class="card-title">📍 Meta do Dia</div>
+      <div class="highlight-row">
+        <span class="hl-label">Progresso</span>
+        <span class="hl-val"><span id="metaProgresso">R$ 0,00</span> / <span id="metaValor">—</span></span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="meta-row">
+        <span id="metaPct">0%</span>
+        <span id="metaFalta"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📐 Indicadores</div>
+      <div class="highlight-row">
+        <span class="hl-label">KM total rodado</span>
+        <span class="hl-val" id="indKm">0 km</span>
+      </div>
+      <div class="divider"></div>
+      <div class="highlight-row">
+        <span class="hl-label">Lucro por KM</span>
+        <span class="hl-val" id="indLucroKm">—</span>
+      </div>
+      <div class="divider"></div>
+      <div class="highlight-row">
+        <span class="hl-label">Gasto por KM</span>
+        <span class="hl-val" id="indGastoKm">—</span>
+      </div>
+      <div class="divider"></div>
+      <div class="highlight-row">
+        <span class="hl-label">Ticket médio (corrida)</span>
+        <span class="hl-val" id="indTicket">—</span>
+      </div>
+    </div>
+
+    <button class="btn btn-wpp" onclick="enviarWhatsApp()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      Enviar Resumo por WhatsApp
+    </button>
+  </div>
+
+  <!-- REGISTRAR -->
+  <div id="sec-registrar" class="section">
+    <div class="card">
+      <div class="card-title">🚗 Nova Corrida / Entrada</div>
+      <div class="input-group">
+        <label>Plataforma</label>
+        <div class="platform-row">
+          <button class="plat-btn uber active" id="platUber" onclick="selectPlat('uber')">🖤 Uber</button>
+          <button class="plat-btn noventa" id="platNoventa" onclick="selectPlat('noventa')">🟡 99</button>
+        </div>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Valor (R$)</label>
+          <input type="number" id="inValor" placeholder="0,00" step="0.01" min="0">
+        </div>
+        <div class="input-group">
+          <label>KM rodados</label>
+          <input type="number" id="inKm" placeholder="0" step="0.1" min="0">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Descrição (opcional)</label>
+        <input type="text" id="inDesc" placeholder="Ex: corrida centro">
+      </div>
+      <button class="btn btn-accent" onclick="registrarCorrida()">✅ Registrar Corrida</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💸 Nova Despesa</div>
+      <div class="input-group">
+        <label>Tipo de Gasto</label>
+        <select id="inTipoGasto">
+          <option value="Combustível">⛽ Combustível</option>
+          <option value="Manutenção">🔧 Manutenção</option>
+          <option value="Alimentação">🍔 Alimentação</option>
+          <option value="Estacionamento">🅿️ Estacionamento</option>
+          <option value="Limpeza">🧹 Limpeza do veículo</option>
+          <option value="Seguro">🛡️ Seguro</option>
+          <option value="Outros">📦 Outros</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <div class="input-group">
+          <label>Valor (R$)</label>
+          <input type="number" id="inGastoValor" placeholder="0,00" step="0.01" min="0">
+        </div>
+        <div class="input-group">
+          <label>Litros (opcional)</label>
+          <input type="number" id="inLitros" placeholder="ex: 30" step="0.1" min="0">
+        </div>
+      </div>
+      <div class="input-group">
+        <label>Observação (opcional)</label>
+        <input type="text" id="inGastoDesc" placeholder="Ex: Posto Shell">
+      </div>
+      <button class="btn btn-accent" style="background:#ff4d6d;color:#fff" onclick="registrarGasto()">➖ Registrar Gasto</button>
+    </div>
+  </div>
+
+  <!-- HISTORICO -->
+  <div id="sec-historico" class="section">
+    <div class="card">
+      <div class="card-title">🕓 Movimentações de Hoje</div>
+      <div id="listaHistorico">
+        <div class="empty"><div class="empty-icon">📭</div>Nenhum registro ainda.</div>
+      </div>
+    </div>
+    <button class="btn btn-outline" onclick="limparDia()">🗑️ Limpar registros do dia</button>
+  </div>
+
+  <!-- CONFIG -->
+  <div id="sec-config" class="section">
+    <div class="card">
+      <div class="card-title">🎯 Meta Financeira Diária</div>
+      <div class="input-group">
+        <label>Meta de Ganhos (R$)</label>
+        <input type="number" id="inMetaGanhos" placeholder="Ex: 300" step="1" min="0">
+      </div>
+      <div class="input-group">
+        <label>Limite de Gastos (R$)</label>
+        <input type="number" id="inMetaGastos" placeholder="Ex: 80" step="1" min="0">
+      </div>
+      <button class="btn btn-accent" onclick="salvarMetas()">💾 Salvar Metas</button>
+    </div>
+    <div class="card">
+      <div class="card-title">📱 WhatsApp para Resumo</div>
+      <div class="input-group">
+        <label>Seu número (com DDD)</label>
+        <input type="tel" id="inTelefone" placeholder="Ex: 11912345678" maxlength="15">
+      </div>
+      <div class="meta-info">
+        <span style="font-size:0.75rem;color:var(--muted);">O resumo será enviado para esse número via WhatsApp Web. Você pode personalizar o destinatário antes de enviar.</span>
+      </div>
+      <button class="btn btn-accent" style="margin-top:12px" onclick="salvarTelefone()">💾 Salvar Número</button>
+    </div>
+  </div>
+
+</main>
+
+<div class="toast" id="toast"></div>
 
 <script>
-let dados=JSON.parse(localStorage.getItem("rubens_dudu")||"[]");
-document.getElementById("data").value=new Date().toISOString().split("T")[0];
+  // ─── STATE ───────────────────────────────────────
+  let state = JSON.parse(localStorage.getItem('motoss_state') || JSON.stringify({
+    registros: [],
+    metaGanhos: 300,
+    metaGastos: 80,
+    telefone: ''
+  }));
 
-function moeda(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+  let currentPlat = 'uber';
 
-function salvar(){
- localStorage.setItem("rubens_dudu",JSON.stringify(dados));
- render();
-}
+  // ─── UTILS ───────────────────────────────────────
+  function fmt(v) {
+    return 'R$ ' + Number(v).toFixed(2).replace('.', ',');
+  }
 
-function add(){
- let item={
-  id:Date.now(),
-  data:data.value,
-  tipo:tipo.value,
-  valor:Number(valor.value||0)
- };
- if(item.valor<=0)return;
- dados.unshift(item);
- valor.value="";
- salvar();
-}
+  function saveState() {
+    localStorage.setItem('motoss_state', JSON.stringify(state));
+  }
 
-function del(id){
- dados=dados.filter(x=>x.id!==id);
- salvar();
-}
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
 
-function render(){
- let uber=0,nove=0,gastos=0;
- lista.innerHTML="";
- dados.forEach(x=>{
-  if(x.tipo==="Uber") uber+=x.valor;
-  else if(x.tipo==="99") nove+=x.valor;
-  else gastos+=x.valor;
+  function getToday() {
+    return new Date().toLocaleDateString('pt-BR');
+  }
 
-  lista.innerHTML+=`
-  <tr>
-   <td>${x.data}</td>
-   <td>${x.tipo}</td>
-   <td class="${x.tipo==='Gasto'?'red':'green'}">${moeda(x.valor)}</td>
-   <td><button onclick="del(${x.id})">X</button></td>
-  </tr>`;
- });
+  function getTodayISO() {
+    return new Date().toISOString().split('T')[0];
+  }
 
- uberTotal.innerText=moeda(uber);
- noveTotal.innerText=moeda(nove);
- gastosTotal.innerText=moeda(gastos);
- saldo.innerText=moeda((uber+nove)-gastos);
- qtd.innerText=dados.length;
-}
-render();
+  function todayRegistros() {
+    const today = getTodayISO();
+    return state.registros.filter(r => r.date === today);
+  }
+
+  // ─── TABS ─────────────────────────────────────────
+  function switchTab(tab) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('sec-' + tab).classList.add('active');
+    event.target.classList.add('active');
+    if (tab === 'dashboard') refreshDashboard();
+    if (tab === 'historico') renderHistorico();
+  }
+
+  // ─── PLATFORM ────────────────────────────────────
+  function selectPlat(p) {
+    currentPlat = p;
+    document.getElementById('platUber').classList.toggle('active', p === 'uber');
+    document.getElementById('platNoventa').classList.toggle('active', p === 'noventa');
+  }
+
+  // ─── REGISTRAR CORRIDA ───────────────────────────
+  function registrarCorrida() {
+    const val = parseFloat(document.getElementById('inValor').value);
+    const km = parseFloat(document.getElementById('inKm').value) || 0;
+    const desc = document.getElementById('inDesc').value || 'Corrida';
+    if (!val || val <= 0) { showToast('⚠️ Informe o valor da corrida!'); return; }
+    state.registros.push({
+      id: Date.now(),
+      date: getTodayISO(),
+      tipo: 'corrida',
+      plat: currentPlat,
+      valor: val,
+      km,
+      desc,
+      hora: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})
+    });
+    saveState();
+    document.getElementById('inValor').value = '';
+    document.getElementById('inKm').value = '';
+    document.getElementById('inDesc').value = '';
+    showToast('✅ Corrida registrada!');
+    refreshDashboard();
+  }
+
+  // ─── REGISTRAR GASTO ─────────────────────────────
+  function registrarGasto() {
+    const val = parseFloat(document.getElementById('inGastoValor').value);
+    const tipo = document.getElementById('inTipoGasto').value;
+    const desc = document.getElementById('inGastoDesc').value || '';
+    const litros = parseFloat(document.getElementById('inLitros').value) || 0;
+    if (!val || val <= 0) { showToast('⚠️ Informe o valor do gasto!'); return; }
+    state.registros.push({
+      id: Date.now(),
+      date: getTodayISO(),
+      tipo: 'gasto',
+      categoria: tipo,
+      valor: val,
+      litros,
+      desc,
+      hora: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})
+    });
+    saveState();
+    document.getElementById('inGastoValor').value = '';
+    document.getElementById('inLitros').value = '';
+    document.getElementById('inGastoDesc').value = '';
+    showToast('➖ Gasto registrado!');
+    refreshDashboard();
+  }
+
+  // ─── DELETAR ─────────────────────────────────────
+  function deletarRegistro(id) {
+    state.registros = state.registros.filter(r => r.id !== id);
+    saveState();
+    renderHistorico();
+    refreshDashboard();
+    showToast('🗑️ Removido!');
+  }
+
+  function limparDia() {
+    if (!confirm('Limpar todos os registros de hoje?')) return;
+    const today = getTodayISO();
+    state.registros = state.registros.filter(r => r.date !== today);
+    saveState();
+    renderHistorico();
+    refreshDashboard();
+    showToast('🗑️ Dia limpo!');
+  }
+
+  // ─── DASHBOARD ───────────────────────────────────
+  function refreshDashboard() {
+    const regs = todayRegistros();
+    const corridas = regs.filter(r => r.tipo === 'corrida');
+    const gastos = regs.filter(r => r.tipo === 'gasto');
+
+    const totalG = corridas.reduce((a, r) => a + r.valor, 0);
+    const totalGasto = gastos.reduce((a, r) => a + r.valor, 0);
+    const lucro = totalG - totalGasto;
+    const kmTotal = corridas.reduce((a, r) => a + r.km, 0);
+
+    document.getElementById('totalGanhos').textContent = fmt(totalG);
+    document.getElementById('totalGastos').textContent = fmt(totalGasto);
+    document.getElementById('totalLucro').textContent = fmt(lucro);
+    document.getElementById('totalCorridas').textContent = corridas.length;
+
+    // Indicadores
+    document.getElementById('indKm').textContent = kmTotal.toFixed(1) + ' km';
+    document.getElementById('indLucroKm').textContent = kmTotal > 0 ? fmt(lucro / kmTotal) + '/km' : '—';
+    document.getElementById('indGastoKm').textContent = kmTotal > 0 ? fmt(totalGasto / kmTotal) + '/km' : '—';
+    document.getElementById('indTicket').textContent = corridas.length > 0 ? fmt(totalG / corridas.length) : '—';
+
+    // Meta
+    const meta = state.metaGanhos || 300;
+    const pct = Math.min((totalG / meta) * 100, 100);
+    const falta = Math.max(meta - totalG, 0);
+    document.getElementById('metaProgresso').textContent = fmt(totalG);
+    document.getElementById('metaValor').textContent = fmt(meta);
+    document.getElementById('metaPct').textContent = pct.toFixed(0) + '%';
+    document.getElementById('metaFalta').textContent = falta > 0 ? 'Faltam ' + fmt(falta) : '🎉 Meta atingida!';
+    const fill = document.getElementById('progressFill');
+    fill.style.width = pct + '%';
+    fill.classList.toggle('over', pct >= 100);
+  }
+
+  // ─── HISTORICO ───────────────────────────────────
+  function renderHistorico() {
+    const regs = todayRegistros().reverse();
+    const container = document.getElementById('listaHistorico');
+    if (regs.length === 0) {
+      container.innerHTML = '<div class="empty"><div class="empty-icon">📭</div>Nenhum registro ainda.</div>';
+      return;
+    }
+    container.innerHTML = regs.map(r => {
+      if (r.tipo === 'corrida') {
+        const platClass = r.plat === 'uber' ? 'uber' : 'noventa';
+        const platLabel = r.plat === 'uber' ? 'U' : '99';
+        return `<div class="trip-item">
+          <div class="trip-plat ${platClass}">${platLabel}</div>
+          <div class="trip-info">
+            <div class="trip-name">${r.desc} ${r.km > 0 ? '<span class="km-tag">'+r.km+' km</span>' : ''}</div>
+            <div class="trip-meta">${r.hora}</div>
+          </div>
+          <div class="trip-value income">${fmt(r.valor)}</div>
+          <button class="delete-btn" onclick="deletarRegistro(${r.id})">✕</button>
+        </div>`;
+      } else {
+        return `<div class="trip-item">
+          <div class="trip-plat" style="background:rgba(255,77,109,0.15);color:var(--red);font-size:1rem;">💸</div>
+          <div class="trip-info">
+            <div class="trip-name">${r.categoria} ${r.desc ? '· ' + r.desc : ''}</div>
+            <div class="trip-meta">${r.hora}${r.litros > 0 ? ' · ' + r.litros + 'L' : ''}</div>
+          </div>
+          <div class="trip-value expense">-${fmt(r.valor)}</div>
+          <button class="delete-btn" onclick="deletarRegistro(${r.id})">✕</button>
+        </div>`;
+      }
+    }).join('');
+  }
+
+  // ─── METAS ───────────────────────────────────────
+  function salvarMetas() {
+    const mg = parseFloat(document.getElementById('inMetaGanhos').value);
+    const mgg = parseFloat(document.getElementById('inMetaGastos').value);
+    if (mg) state.metaGanhos = mg;
+    if (mgg) state.metaGastos = mgg;
+    saveState();
+    showToast('💾 Metas salvas!');
+    refreshDashboard();
+  }
+
+  function salvarTelefone() {
+    const tel = document.getElementById('inTelefone').value.replace(/\D/g, '');
+    if (!tel) { showToast('⚠️ Informe um número!'); return; }
+    state.telefone = tel;
+    saveState();
+    showToast('📱 Número salvo!');
+  }
+
+  // ─── WHATSAPP ────────────────────────────────────
+  function enviarWhatsApp() {
+    const regs = todayRegistros();
+    const corridas = regs.filter(r => r.tipo === 'corrida');
+    const gastos = regs.filter(r => r.tipo === 'gasto');
+    const totalG = corridas.reduce((a, r) => a + r.valor, 0);
+    const totalGasto = gastos.reduce((a, r) => a + r.valor, 0);
+    const lucro = totalG - totalGasto;
+    const kmTotal = corridas.reduce((a, r) => a + r.km, 0);
+    const meta = state.metaGanhos || 300;
+    const pct = Math.min((totalG / meta) * 100, 100).toFixed(0);
+
+    const uberCorridas = corridas.filter(r => r.plat === 'uber');
+    const novCorridas = corridas.filter(r => r.plat === 'noventa');
+
+    const gastosPorCat = {};
+    gastos.forEach(g => {
+      gastosPorCat[g.categoria] = (gastosPorCat[g.categoria] || 0) + g.valor;
+    });
+    const gastosLinha = Object.entries(gastosPorCat).map(([k,v]) => `   • ${k}: ${fmt(v)}`).join('\n') || '   • Nenhum';
+
+    const texto = `🚗 *RESUMO DO DIA — MOTO$$*
+📅 ${getToday()}
+${'─'.repeat(28)}
+
+💰 *GANHOS*
+   • Total: *${fmt(totalG)}*
+   • Corridas: ${corridas.length} (Uber: ${uberCorridas.length} | 99: ${novCorridas.length})
+   • Ticket médio: ${corridas.length > 0 ? fmt(totalG / corridas.length) : '—'}
+   • KM rodados: ${kmTotal.toFixed(1)} km
+
+💸 *DESPESAS*
+${gastosLinha}
+   ─────────────
+   • Total: *${fmt(totalGasto)}*
+
+📊 *RESULTADO*
+   • Lucro líquido: *${fmt(lucro)}*
+   • Lucro/KM: ${kmTotal > 0 ? fmt(lucro / kmTotal) + '/km' : '—'}
+
+🎯 *META DIÁRIA*
+   • Meta: ${fmt(meta)}
+   • Alcançado: ${pct}% ${pct >= 100 ? '✅' : '⏳'}
+
+_Enviado pelo app MOTO$$_`;
+
+    const tel = state.telefone ? '55' + state.telefone : '';
+    const url = `https://wa.me/${tel}?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+  }
+
+  // ─── INIT ────────────────────────────────────────
+  function init() {
+    document.getElementById('headerDate').textContent = getToday();
+    if (state.metaGanhos) document.getElementById('inMetaGanhos').value = state.metaGanhos;
+    if (state.metaGastos) document.getElementById('inMetaGastos').value = state.metaGastos;
+    if (state.telefone) document.getElementById('inTelefone').value = state.telefone;
+    refreshDashboard();
+  }
+
+  init();
 </script>
 </body>
 </html>
