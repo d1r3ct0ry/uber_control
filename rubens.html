@@ -665,47 +665,52 @@ let state = {
   }
 
   // ─── REGISTRAR CORRIDA ───────────────────────────
-  function registrarCorrida() {
+ async function registrarCorrida() {
     const val = parseFloat(document.getElementById('inValor').value);
     const km = parseFloat(document.getElementById('inKm').value) || 0;
     const desc = document.getElementById('inDesc').value || 'Corrida';
     if (!val || val <= 0) { showToast('⚠️ Informe o valor da corrida!'); return; }
-    state.registros.push({
-      id: Date.now(),
-      date: getTodayISO(),
+      const { error } = await supabaseClient
+    .from('registros')
+    .insert([{
       tipo: 'corrida',
       plat: currentPlat,
       valor: val,
-      km,
-      desc,
-      hora: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})
-    });
-    saveState();
-    document.getElementById('inValor').value = '';
-    document.getElementById('inKm').value = '';
-    document.getElementById('inDesc').value = '';
-    showToast('✅ Corrida registrada!');
-    refreshDashboard();
+      km: km,
+      descricao: desc
+    }]);
+  
+  if (error) {
+    console.error(error);
+    showToast('Erro ao salvar');
+    return;
   }
-
+  
+  await carregarRegistros();
   // ─── REGISTRAR GASTO ─────────────────────────────
-  function registrarGasto() {
+  async function registrarGasto() {
     const val = parseFloat(document.getElementById('inGastoValor').value);
     const tipo = document.getElementById('inTipoGasto').value;
     const desc = document.getElementById('inGastoDesc').value || '';
     const litros = parseFloat(document.getElementById('inLitros').value) || 0;
     if (!val || val <= 0) { showToast('⚠️ Informe o valor do gasto!'); return; }
-    state.registros.push({
-      id: Date.now(),
-      date: getTodayISO(),
-      tipo: 'gasto',
-      categoria: tipo,
-      valor: val,
-      litros,
-      desc,
-      hora: new Date().toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'})
-    });
-    saveState();
+    const { error } = await supabaseClient
+      .from('registros')
+      .insert([{
+        tipo: 'gasto',
+        categoria: tipo,
+        valor: val,
+        litros: litros,
+        descricao: desc
+      }]);
+    
+    if (error) {
+      console.error(error);
+      showToast('Erro ao salvar');
+      return;
+    }
+    
+    await carregarRegistros();
     document.getElementById('inGastoValor').value = '';
     document.getElementById('inLitros').value = '';
     document.getElementById('inGastoDesc').value = '';
@@ -714,11 +719,17 @@ let state = {
   }
 
   // ─── DELETAR ─────────────────────────────────────
-  function deletarRegistro(id) {
-    state.registros = state.registros.filter(r => r.id !== id);
-    saveState();
-    renderHistorico();
-    refreshDashboard();
+  async function deletarRegistro(id) {
+  
+    const { error } = await excluirRegistroDB(id);
+  
+    if (error) {
+      showToast('Erro ao excluir');
+      return;
+    }
+  
+    await carregarRegistros();
+  
     showToast('🗑️ Removido!');
   }
 
@@ -873,11 +884,12 @@ _Enviado pelo app MOTO$$_`;
   }
 
   // ─── INIT ────────────────────────────────────────
-  function init() {
+  async function init() {
     document.getElementById('headerDate').textContent = getToday();
     if (state.metaGanhos) document.getElementById('inMetaGanhos').value = state.metaGanhos;
     if (state.metaGastos) document.getElementById('inMetaGastos').value = state.metaGastos;
     if (state.telefone) document.getElementById('inTelefone').value = state.telefone;
+    await carregarRegistros();
     refreshDashboard();
   }
 
