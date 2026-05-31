@@ -1,100 +1,110 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Resumo Diário Uber/99</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rubens do Dudu Financeiro</title>
 <style>
-body{
-    font-family:Arial;
-    max-width:800px;
-    margin:20px auto;
-    padding:20px;
-}
-input{
-    padding:8px;
-    margin:5px;
-}
-button{
-    padding:8px 15px;
-}
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-}
-th,td{
-    border:1px solid #ddd;
-    padding:10px;
-}
+body{font-family:Inter,Arial,sans-serif;background:#0f172a;color:#fff;max-width:900px;margin:auto;padding:16px}
+.card{background:#1e293b;border-radius:18px;padding:16px;margin:10px 0}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.big{font-size:36px;font-weight:700;color:#22c55e}
+.small{color:#94a3b8}
+input,select{width:100%;padding:10px;border-radius:10px;border:none;margin:5px 0}
+button{padding:12px 16px;border:none;border-radius:12px;background:#22c55e;color:white;font-weight:bold;cursor:pointer}
+table{width:100%;border-collapse:collapse}
+td,th{padding:8px;border-bottom:1px solid #334155}
+.red{color:#ef4444}.green{color:#22c55e}
 </style>
 </head>
 <body>
+<h1>🚗 Rubens do Dudu Financeiro</h1>
 
-<h2>Resumo Diário</h2>
+<div class="card">
+<div class="small">Saldo Atual</div>
+<div class="big" id="saldo">R$ 0,00</div>
+</div>
 
+<div class="grid">
+<div class="card"><div class="small">Uber</div><h2 id="uberTotal">R$ 0</h2></div>
+<div class="card"><div class="small">99</div><h2 id="noveTotal">R$ 0</h2></div>
+<div class="card"><div class="small">Gastos</div><h2 class="red" id="gastosTotal">R$ 0</h2></div>
+<div class="card"><div class="small">Lançamentos</div><h2 id="qtd">0</h2></div>
+</div>
+
+<div class="card">
+<h3>Novo lançamento</h3>
 <input type="date" id="data">
-<input type="number" id="uber" placeholder="Uber">
-<input type="number" id="nove9" placeholder="99">
-<input type="number" id="gastos" placeholder="Gastos">
+<select id="tipo">
+<option>Uber</option>
+<option>99</option>
+<option>Gasto</option>
+</select>
+<input type="number" id="valor" placeholder="Valor">
+<button onclick="add()">Salvar</button>
+</div>
 
-<button onclick="adicionar()">Salvar</button>
-
-<h3 id="totalMes">Total mês: R$ 0,00</h3>
-
+<div class="card">
+<h3>Histórico</h3>
 <table>
-<thead>
-<tr>
-<th>Data</th>
-<th>Uber</th>
-<th>99</th>
-<th>Gastos</th>
-<th>Lucro</th>
-</tr>
-</thead>
-<tbody id="tabela"></tbody>
+<thead><tr><th>Data</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
+<tbody id="lista"></tbody>
 </table>
+</div>
 
 <script>
-let dados = JSON.parse(localStorage.getItem("corridas")) || [];
+let dados=JSON.parse(localStorage.getItem("rubens_dudu")||"[]");
+document.getElementById("data").value=new Date().toISOString().split("T")[0];
 
-function adicionar(){
-    let registro = {
-        data:data.value,
-        uber:Number(uber.value),
-        nove9:Number(nove9.value),
-        gastos:Number(gastos.value)
-    };
+function moeda(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
 
-    dados.push(registro);
-    localStorage.setItem("corridas",JSON.stringify(dados));
+function salvar(){
+ localStorage.setItem("rubens_dudu",JSON.stringify(dados));
+ render();
+}
 
-    render();
+function add(){
+ let item={
+  id:Date.now(),
+  data:data.value,
+  tipo:tipo.value,
+  valor:Number(valor.value||0)
+ };
+ if(item.valor<=0)return;
+ dados.unshift(item);
+ valor.value="";
+ salvar();
+}
+
+function del(id){
+ dados=dados.filter(x=>x.id!==id);
+ salvar();
 }
 
 function render(){
-    let html="";
-    let totalMes=0;
+ let uber=0,nove=0,gastos=0;
+ lista.innerHTML="";
+ dados.forEach(x=>{
+  if(x.tipo==="Uber") uber+=x.valor;
+  else if(x.tipo==="99") nove+=x.valor;
+  else gastos+=x.valor;
 
-    dados.forEach(r=>{
-        let lucro = r.uber + r.nove9 - r.gastos;
-        totalMes += lucro;
+  lista.innerHTML+=`
+  <tr>
+   <td>${x.data}</td>
+   <td>${x.tipo}</td>
+   <td class="${x.tipo==='Gasto'?'red':'green'}">${moeda(x.valor)}</td>
+   <td><button onclick="del(${x.id})">X</button></td>
+  </tr>`;
+ });
 
-        html += `
-        <tr>
-            <td>${r.data}</td>
-            <td>R$ ${r.uber.toFixed(2)}</td>
-            <td>R$ ${r.nove9.toFixed(2)}</td>
-            <td>R$ ${r.gastos.toFixed(2)}</td>
-            <td>R$ ${lucro.toFixed(2)}</td>
-        </tr>`;
-    });
-
-    tabela.innerHTML = html;
-    totalMes.innerHTML = `Total mês: R$ ${totalMes.toFixed(2)}`;
+ uberTotal.innerText=moeda(uber);
+ noveTotal.innerText=moeda(nove);
+ gastosTotal.innerText=moeda(gastos);
+ saldo.innerText=moeda((uber+nove)-gastos);
+ qtd.innerText=dados.length;
 }
-
 render();
 </script>
-
 </body>
 </html>
