@@ -687,6 +687,13 @@ let state = {
   }
   
   await carregarRegistros();
+  document.getElementById('inValor').value = '';
+  document.getElementById('inKm').value = '';
+  document.getElementById('inDesc').value = '';
+  
+  showToast('✅ Corrida registrada!');
+  refreshDashboard();
+  }
   // ─── REGISTRAR GASTO ─────────────────────────────
   async function registrarGasto() {
     const val = parseFloat(document.getElementById('inGastoValor').value);
