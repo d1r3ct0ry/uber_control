@@ -882,6 +882,45 @@ _Enviado pelo app MOTO$$_`;
   }
 
   init();
+
+  async function carregarRegistros() {
+  const { data, error } = await supabaseClient
+    .from('registros')
+    .select('*')
+    .order('data_registro', { ascending: false });
+
+  if (error) {
+    console.error(error);
+    showToast('Erro ao carregar dados');
+    return;
+  }
+
+  state.registros = data.map(r => ({
+    id: r.id,
+    tipo: r.tipo,
+    plat: r.plat,
+    categoria: r.categoria,
+    valor: Number(r.valor),
+    km: Number(r.km || 0),
+    litros: Number(r.litros || 0),
+    desc: r.descricao || '',
+    date: r.data_registro.split('T')[0],
+    hora: new Date(r.data_registro).toLocaleTimeString(
+      'pt-BR',
+      { hour:'2-digit', minute:'2-digit' }
+    )
+  }));
+
+  refreshDashboard();
+  renderHistorico();
+}
+
+async function excluirRegistroDB(id) {
+  return await supabaseClient
+    .from('registros')
+    .delete()
+    .eq('id', id);
+}
 </script>
 </body>
 </html>
