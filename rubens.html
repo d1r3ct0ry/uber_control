@@ -601,12 +601,20 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   // ─── STATE ───────────────────────────────────────
-  let state = JSON.parse(localStorage.getItem('motoss_state') || JSON.stringify({
-    registros: [],
-    metaGanhos: 300,
-    metaGastos: 80,
-    telefone: ''
-  }));
+const supabaseUrl = 'https://mzhturkxrwzgmcwlsfts.supabase.co';
+const supabaseKey = 'sb_publishable_BA-0LBD1A1fexIPRMMlzcA_Gzyq5Lwq';
+
+const supabaseClient = supabase.createClient(
+  supabaseUrl,
+  supabaseKey
+);
+
+let state = {
+  registros: [],
+  metaGanhos: 300,
+  metaGastos: 80,
+  telefone: ''
+};
 
   let currentPlat = 'uber';
 
